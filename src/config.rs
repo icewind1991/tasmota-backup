@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
+use tasmota_mqtt_client::TasmotaClient;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -36,7 +37,8 @@ pub struct MqttConfig {
     #[serde(default = "default_port")]
     pub port: u16,
     pub username: Option<String>,
-    pub password: Option<String>,
+    #[serde(flatten)]
+    pub password: Option<PasswordConfig>,
 }
 
 fn default_port() -> u16 {
@@ -44,18 +46,20 @@ fn default_port() -> u16 {
 }
 
 impl MqttConfig {
-    pub fn credentials(&self) -> Option<(&str, &str)> {
-        self.username.as_deref().zip(self.password.as_deref())
-    }
-}
+    pub async fn connect(&self) -> Result<TasmotaClient> {
+        let password = self
+            .password
+            .as_ref()
+            .map(|password| password.get())
+            .transpose()?;
 
-#[derive(Debug, Deserialize)]
-pub struct RawMqttConfig {
-    pub hostname: String,
-    pub port: u16,
-    pub username: Option<String>,
-    #[serde(flatten)]
-    pub password: Option<PasswordConfig>,
+        Ok(TasmotaClient::connect(
+            &self.hostname,
+            self.port,
+            self.username.as_deref().zip(password.as_deref()),
+        )
+        .await?)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,8 +85,12 @@ impl PasswordConfig {
     pub fn get(&self) -> Result<String> {
         match self {
             PasswordConfig::Raw { password } => Ok(password.clone()),
-            PasswordConfig::File { password_file } => Ok(read_to_string(password_file)
-                .with_context(|| format!("Failed to read password from {password_file}"))?),
+            PasswordConfig::File { password_file } => {
+                let mut content = read_to_string(password_file)
+                    .with_context(|| format!("Failed to read password from {password_file}"))?;
+                content.truncate(content.trim_end().len());
+                Ok(content)
+            }
         }
     }
 }

@@ -7,3 +7,4 @@ result
 *.dmp
 config.toml
 output
+passwordfile

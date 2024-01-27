@@ -25,12 +25,7 @@ async fn main() -> Result<()> {
     let config = Config::load(&args.config)?;
     let device_password = config.device.password.get()?;
 
-    let client = TasmotaClient::connect(
-        &config.mqtt.hostname,
-        config.mqtt.port,
-        config.mqtt.credentials(),
-    )
-    .await?;
+    let client = config.mqtt.connect().await?;
 
     info!("waiting for device discovery");
 
@@ -62,7 +57,7 @@ async fn download(
     target_dir: &Path,
     device_password: &str,
 ) -> Result<()> {
-    let file = client.download_config(&device, &device_password).await?;
+    let file = client.download_config(device, device_password).await?;
     let target_path = target_dir.join(&file.name);
     let existing_hash = target_path
         .exists()
