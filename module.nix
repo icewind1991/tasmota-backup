@@ -54,6 +54,12 @@ in {
       description = "File containing the device password";
     };
 
+    interval = mkOption {
+      type = types.str;
+      default = "daily";
+      description = "Interval to run the backup";
+    };
+
     package = mkOption {
       type = types.package;
       defaultText = literalExpression "pkgs.tasproxy";
@@ -63,7 +69,7 @@ in {
 
   config = mkIf cfg.enable {
     systemd.services."tasmota-backup" = {
-      wantedBy = ["multi-user.target"];
+      description = "Backup tasmota configurations";
 
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/tasmota-backup ${configFile}";
@@ -94,6 +100,17 @@ in {
         ProcSubset = "pid";
         RuntimeDirectory = "tasmota-backup";
         RestrictSUIDSGID = true;
+      };
+    };
+
+    systemd.timers."tasmota-backup" = {
+      inherit (config.systemd.services."tasmota-backup") description;
+
+      enable = true;
+      wantedBy = ["multi-user.target"];
+      timerConfig = {
+        OnCalendar = cfg.interval;
+        RandomizedDelaySec = "15m";
       };
     };
   };
