@@ -73,6 +73,7 @@ in {
 
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/tasmota-backup ${configFile}";
+        ReadWritePaths = [cfg.outputPath];
         Restart = "on-failure";
         DynamicUser = true;
         PrivateTmp = true;
