@@ -1,0 +1,9 @@
+target
+*.bench
+*.obj
+result
+.direnv
+*.snap.new
+*.dmp
+config.toml
+output
