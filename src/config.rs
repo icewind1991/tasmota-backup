@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use secretfile::load;
 use serde::Deserialize;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
@@ -85,12 +86,7 @@ impl PasswordConfig {
     pub fn get(&self) -> Result<String> {
         match self {
             PasswordConfig::Raw { password } => Ok(password.clone()),
-            PasswordConfig::File { password_file } => {
-                let mut content = read_to_string(password_file)
-                    .with_context(|| format!("Failed to read password from {password_file}"))?;
-                content.truncate(content.trim_end().len());
-                Ok(content)
-            }
+            PasswordConfig::File { password_file } => Ok(load(password_file)?),
         }
     }
 }

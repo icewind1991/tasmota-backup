@@ -10,7 +10,7 @@ with lib; let
     output.target = cfg.outputPath;
     mqtt = {
       inherit (cfg.mqtt) hostname port username;
-      "password-file" = cfg.mqtt.passwordFile;
+      "password-file" = "$CREDENTIALS_DIRECTORY/mqtt_password";
     };
     device."password-file" = cfg.devicePasswordFile;
   };
@@ -73,6 +73,9 @@ in {
 
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/tasmota-backup ${configFile}";
+        LoadCredential = [
+          "mqtt_password:${cfg.mqtt.passwordFile}"
+        ];
         ReadWritePaths = [cfg.outputPath];
         Restart = "on-failure";
         DynamicUser = true;
