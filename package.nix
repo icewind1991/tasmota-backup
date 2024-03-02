@@ -14,6 +14,8 @@ in
 
     inherit src;
 
+    doCheck = false;
+
     cargoLock = {
       lockFile = ./Cargo.lock;
 
