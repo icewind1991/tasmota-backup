@@ -68,6 +68,12 @@ in {
   };
 
   config = mkIf cfg.enable {
+    users.groups.tasmota-backup = {};
+    users.users.tasmota-backup = {
+      group = config.users.groups.tasmota-backup.name;
+      isSystemUser = true;
+    };
+
     systemd.services."tasmota-backup" = {
       description = "Backup tasmota configurations";
 
@@ -79,7 +85,6 @@ in {
         ];
         ReadWritePaths = [cfg.outputPath];
         Restart = "on-failure";
-        DynamicUser = true;
         PrivateTmp = true;
         ProtectSystem = "strict";
         ProtectHome = true;
