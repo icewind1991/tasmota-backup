@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
     info!("found {} devices", devices.len());
     for device in devices {
         let result = timeout(
-            Duration::from_secs(15),
+            Duration::from_secs(120),
             download(&client, &device, &config.output.target, &device_password),
         )
         .await;
