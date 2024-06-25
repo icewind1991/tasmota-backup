@@ -16,6 +16,7 @@ mod config;
 #[derive(Debug, Parser)]
 struct Args {
     config: PathBuf,
+    device: Option<String>,
 }
 
 #[tokio::main]
@@ -35,16 +36,18 @@ async fn main() -> Result<()> {
     let devices = client.current_devices();
     info!("found {} devices", devices.len());
     for device in devices {
-        let result = timeout(
-            Duration::from_secs(120),
-            download(&client, &device, &config.output.target, &device_password),
-        )
-        .await;
-        let result = result
-            .with_context(|| format!("Timeout while downloading config for {device}"))
-            .and_then(|res| res);
-        if let Err(e) = result {
-            error!(device = device, error = %e, "Failed to download config for {device}");
+        if args.device.is_none() || args.device.as_deref() == Some(device.as_str()) {
+            let result = timeout(
+                Duration::from_secs(120),
+                download(&client, &device, &config.output.target, &device_password),
+            )
+            .await;
+            let result = result
+                .with_context(|| format!("Timeout while downloading config for {device}"))
+                .and_then(|res| res);
+            if let Err(e) = result {
+                error!(device = device, error = %e, "Failed to download config for {device}");
+            }
         }
     }
 
