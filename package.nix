@@ -20,7 +20,7 @@ in
       lockFile = ./Cargo.lock;
 
       outputHashes = {
-        "tasmota-mqtt-client-0.1.0" = "sha256-Azs9F825oU4ME+KwJIniLHGzVEBHJJws3faJLdBYoAA=";
+        "tasmota-mqtt-client-0.1.0" = "sha256-ZdM2fCH6NXEUEbml9GKXy77hDL3VnUQ2c1WZH6kDLZQ=";
       };
     };
   }
