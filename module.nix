@@ -84,6 +84,7 @@ in
           "device_password:${cfg.devicePasswordFile}"
         ];
         ReadWritePaths = [ cfg.outputPath ];
+        User = "tasmota-backup";
         Restart = "on-failure";
         PrivateTmp = true;
         ProtectSystem = "strict";
