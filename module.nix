@@ -83,7 +83,7 @@ in
           "mqtt_password:${cfg.mqtt.passwordFile}"
           "device_password:${cfg.devicePasswordFile}"
         ];
-        ReadWritePaths = [ cfg.outputPath ];
+        BindPaths = [ cfg.outputPath ];
         User = "tasmota-backup";
         Restart = "on-failure";
         PrivateTmp = true;
@@ -106,10 +106,23 @@ in
         RestrictRealtime = true;
         ProtectProc = "noaccess";
         SystemCallFilter = [ "@system-service" "~@resources" "~@privileged" ];
-        IPAddressDeny = "multicast";
+        IPAddressDeny = mkDefault "multicast";
         PrivateUsers = true;
         ProcSubset = "pid";
         RestrictSUIDSGID = true;
+
+        # needed for dns with confinement
+        BindReadOnlyPaths = [
+          "-/etc/resolv.conf"
+          "-/run/systemd"
+          "/etc/hosts"
+          "/etc/ssl/certs/ca-certificates.crt"
+        ];
+      };
+
+      confinement = {
+        enable = true;
+        binSh = null;
       };
     };
 
