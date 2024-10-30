@@ -9,6 +9,7 @@ tasmota-backup /path/to/config.toml
 ```
 
 config.toml:
+
 ```toml
 [output]
 target = "/path/to/output-directory"
