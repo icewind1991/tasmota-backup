@@ -46,7 +46,8 @@ async fn main() -> Result<()> {
                 .with_context(|| format!("Timeout while downloading config for {device}"))
                 .and_then(|res| res);
             if let Err(e) = result {
-                error!(device = device, error = %e, "Failed to download config for {device}");
+                let error = format!("{e:#}");
+                error!(device, error, "Failed to download config for {device}");
             }
         }
     }
