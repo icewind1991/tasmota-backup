@@ -1,3 +1,5 @@
+# Moved to https://codeberg.org/icewind/tasmota-backup
+
 # tasmota-backup
 
 Backup tasmota configuration over MQTT
